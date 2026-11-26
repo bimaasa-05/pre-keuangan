@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export-excel', [ReportController::class, 'exportExcel'])->name('reports.export-excel');
     Route::get('/reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.export');
     Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
 

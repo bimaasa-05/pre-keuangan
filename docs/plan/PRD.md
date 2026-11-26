@@ -137,7 +137,8 @@ Gunakan **Alpine.js** untuk pengalaman input yang cepat dan mulus:
 ### 5.6. Laporan & Export LPJ (`/reports`)
 - Filter periode berdasarkan **Bulan & Tahun** atau **Rentang Tanggal Kustom**.
 - Menampilkan kartu ringkasan periode: **Saldo Awal**, **Total Pemasukan**, **Total Pengeluaran**, dan **Saldo Akhir**.
-- **Export CSV/Excel (`/reports/export-csv`):** Mengunduh file `.csv` dengan pemisah titik koma (`;`) atau koma standar lengkap dengan BOM UTF-8 agar langsung terbaca rapi dalam kolom-kolom Microsoft Excel.
+- **Export Excel (`/reports/export-excel`):** Mengunduh file `.xlsx` dengan judul dan periode, tabel ber-border, header berwarna, freeze pane, auto-filter, lebar kolom, tanggal `dd/mm/yyyy`, nominal format Rupiah yang tetap numerik, serta ringkasan saldo awal/akhir.
+- **Export CSV (`/reports/export-csv`):** Mengunduh data mentah `.csv` dengan pemisah titik koma (`;`) dan BOM UTF-8 untuk pengolahan lanjutan.
 - **Cetak Laporan Resmi (`/reports/print`):** Halaman bersih tanpa navigasi aplikasi dengan format tabel pembukuan resmi sekolah, kop judul laporan periode, ringkasan saldo, serta kolom tanda tangan **Bendahara Sekolah** dan **Kepala Sekolah** di bagian bawah (siap *Ctrl+P / Save as PDF* dari browser HP maupun laptop).
 
 ### 5.7. Konfigurasi PWA (Installable di Android)

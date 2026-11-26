@@ -18,15 +18,20 @@
             <p class="mt-1 text-xs text-zinc-500">Periode {{ $periodLabel }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('reports.export', $query) }}"
-               class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900">
+            <a href="{{ route('reports.export-excel', $query) }}"
+               class="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800">
                 <x-icon name="download" class="h-4 w-4" />
-                Export CSV
+                Export Excel
             </a>
             <a href="{{ route('reports.print', $query) }}" target="_blank" rel="noopener"
-               class="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800">
+               class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900">
                 <x-icon name="printer" class="h-4 w-4" />
-                Cetak Laporan
+                Cetak / PDF
+            </a>
+            <a href="{{ route('reports.export', $query) }}"
+               title="CSV data mentah untuk diolah lagi"
+               class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-xs font-semibold text-zinc-500 transition hover:text-zinc-900">
+                CSV (data mentah)
             </a>
         </div>
     </div>

@@ -12,7 +12,7 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 - **Transaksi** — catat pemasukan/pengeluaran, unggah foto nota (maks. 2 MB), cari & filter berdasarkan tipe, kategori, dan rentang tanggal.
 - **Kategori** — kelola pos pemasukan dan pengeluaran beserta ikonnya.
 - **Manajemen pengguna** — khusus admin; tambah, ubah, dan hapus akun, atur role, serta reset password.
-- **Laporan** — rekap bulanan atau rentang tanggal kustom, saldo awal/akhir, export CSV, dan halaman cetak A4 dengan kolom tanda tangan.
+- **Laporan** — rekap bulanan atau rentang tanggal kustom, saldo awal/akhir, export Excel rapi, CSV data mentah, dan halaman cetak A4 dengan kolom tanda tangan.
 - **PWA** — dapat dipasang ke home screen, service worker dengan fallback offline.
 - **Role-based access** — `admin` (akses penuh + manajemen pengguna) dan `bendahara` (transaksi, kategori, laporan).
 
@@ -21,6 +21,7 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 | Bagian | Teknologi |
 |---|---|
 | Backend | Laravel 12, PHP 8.2+ |
+| Export Excel | PhpSpreadsheet 5.x |
 | Frontend | Blade, Tailwind CSS v4, Alpine.js |
 | Database | MySQL 5.7+ / 8.x |
 | Build tool | Vite 6 |
@@ -28,7 +29,7 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 
 ## Kebutuhan
 
-- PHP **8.2+** dengan ekstensi `pdo_mysql`, `gd`, `fileinfo`
+- PHP **8.2+** dengan ekstensi `pdo_mysql`, `gd`, `fileinfo`, `zip`, `xml`, `mbstring`
 - Composer 2
 - Node.js **20+** dan npm
 - MySQL **5.7+** (atau MariaDB yang kompatibel)
@@ -112,7 +113,8 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 
 ## Laporan & Export
 
-- **CSV** memakai UTF-8 BOM dan delimiter `;` agar rapi saat dibuka di Excel versi Indonesia.
+- **Excel (.xlsx)** adalah export utama: judul dan periode, header tabel berwarna, border, freeze pane, auto-filter, lebar kolom, tanggal `dd/mm/yyyy`, serta nominal format `Rp 1.500.000` yang tetap numerik. Ringkasan saldo awal, pemasukan, pengeluaran, dan saldo akhir berada di bawah tabel.
+- **CSV** tetap tersedia sebagai data mentah: UTF-8 BOM, delimiter `;`, dan nominal angka tanpa format agar mudah diolah lagi. Untuk tampilan rapi, gunakan export Excel.
 - **Cetak** membuka halaman A4 terpisah; gunakan tombol *Cetak / Simpan PDF* di browser.
 - Bukti nota disimpan di `storage/app/public/receipts` dan diakses melalui route terautentikasi `/transactions/{id}/receipt` — tidak memerlukan `php artisan storage:link`.
 

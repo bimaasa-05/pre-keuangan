@@ -1,0 +1,58 @@
+{
+    "id": "/",
+    "name": "KasK1ta - Pencatatan Kas",
+    "short_name": "KasK1ta",
+    "description": "Aplikasi pencatatan kas sekolah: pemasukan, pengeluaran, bukti nota, dan laporan LPJ.",
+    "start_url": "/dashboard",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#F4F4F5",
+    "theme_color": "#18181B",
+    "lang": "id",
+    "categories": ["finance", "education", "productivity"],
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/icons/icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Catat Transaksi",
+            "short_name": "Catat",
+            "url": "/transactions/create",
+            "icons": [
+                {
+                    "src": "/icons/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Laporan Kas",
+            "short_name": "Laporan",
+            "url": "/reports",
+            "icons": [
+                {
+                    "src": "/icons/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}

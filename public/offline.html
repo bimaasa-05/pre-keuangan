@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#18181B">
+    <title>Offline · KasK1ta</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: #F4F4F5;
+            color: #18181B;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+        .card {
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #E4E4E7;
+            border-radius: 24px;
+            background: #FFFFFF;
+            padding: 28px;
+            text-align: center;
+        }
+        img {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+        }
+        h1 {
+            margin: 18px 0 0;
+            font-size: 22px;
+            letter-spacing: -0.02em;
+        }
+        p {
+            margin: 8px 0 0;
+            color: #71717A;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            border-radius: 14px;
+            background: #18181B;
+            color: #FFFFFF;
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        a:hover { background: #27272A; }
+        .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 6px;
+            border-radius: 999px;
+            background: #A3E635;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <img src="/icons/icon-192.png" alt="KasK1ta">
+        <h1>Anda sedang offline</h1>
+        <p><span class="dot"></span>Koneksi internet tidak tersedia. Data yang sudah tampil tetap aman; sambungkan kembali internet untuk mencatat transaksi baru.</p>
+        <a href="/dashboard">Coba Muat Ulang</a>
+    </main>
+</body>
+</html>

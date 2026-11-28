@@ -84,11 +84,11 @@
             </div>
             <div class="rounded-lg border border-zinc-300 px-2 py-2">
                 <p class="text-[9px] uppercase tracking-wider text-zinc-500">Pemasukan</p>
-                <p class="mt-1 text-xs font-bold tabular-nums text-teal-700">{{ format_rupiah($totalIncome) }}</p>
+                <p class="mt-1 text-xs font-bold tabular-nums text-emerald-700">{{ format_rupiah($totalIncome) }}</p>
             </div>
             <div class="rounded-lg border border-zinc-300 px-2 py-2">
                 <p class="text-[9px] uppercase tracking-wider text-zinc-500">Pengeluaran</p>
-                <p class="mt-1 text-xs font-bold tabular-nums text-orange-700">{{ format_rupiah($totalExpense) }}</p>
+                <p class="mt-1 text-xs font-bold tabular-nums text-rose-700">{{ format_rupiah($totalExpense) }}</p>
             </div>
             <div class="rounded-lg border border-zinc-900 bg-zinc-900 px-2 py-2 text-white">
                 <p class="text-[9px] uppercase tracking-wider text-zinc-400">Saldo Akhir</p>
@@ -117,15 +117,12 @@
                         <td class="border border-zinc-300 px-2 py-1.5 whitespace-nowrap">{{ $transaction->transaction_date->translatedFormat('d/m/Y') }}</td>
                         <td class="border border-zinc-300 px-2 py-1.5">
                             {{ $transaction->description }}
-                            @if ($transaction->notes)
-                                <span class="block text-[9px] text-zinc-500">{{ $transaction->notes }}</span>
-                            @endif
                         </td>
                         <td class="border border-zinc-300 px-2 py-1.5">{{ $transaction->category->name }}</td>
-                        <td class="border border-zinc-300 px-2 py-1.5 text-right tabular-nums whitespace-nowrap">
+                        <td class="border border-zinc-300 px-2 py-1.5 text-right font-semibold tabular-nums whitespace-nowrap text-emerald-700">
                             {{ $transaction->type === 'income' ? format_rupiah($transaction->amount) : '—' }}
                         </td>
-                        <td class="border border-zinc-300 px-2 py-1.5 text-right tabular-nums whitespace-nowrap">
+                        <td class="border border-zinc-300 px-2 py-1.5 text-right font-semibold tabular-nums whitespace-nowrap text-rose-700">
                             {{ $transaction->type === 'expense' ? format_rupiah($transaction->amount) : '—' }}
                         </td>
                         <td class="border border-zinc-300 px-2 py-1.5 text-right font-semibold tabular-nums whitespace-nowrap">{{ format_rupiah($running) }}</td>

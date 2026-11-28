@@ -10,6 +10,17 @@
 
     <title>@yield('title', 'Masuk') · {{ config('app.name') }}</title>
 
+    <script>
+        (function () {
+            try {
+                const stored = localStorage.getItem('kask1ta-theme');
+                const dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.classList.toggle('dark', dark);
+                document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+            } catch (error) {}
+        })();
+    </script>
+
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/icons/icon-mark.png">
@@ -20,12 +31,19 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-zinc-100 font-sans text-zinc-900">
+<body class="min-h-screen bg-zinc-100 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
     <div class="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-        <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-lime-300/25 blur-3xl"></div>
-        <div class="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-zinc-900/5 blur-3xl"></div>
+        <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-lime-300/25 blur-3xl dark:bg-lime-400/10"></div>
+        <div class="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-zinc-900/5 blur-3xl dark:bg-lime-400/5"></div>
 
-        <div class="relative w-full max-w-4xl overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 md:grid md:grid-cols-2">
+        <div class="absolute right-4 top-4 flex items-center gap-2">
+            <x-ui.theme-toggle compact />
+            <a href="{{ route('landing') }}" class="rounded-full border border-zinc-200 bg-white px-3 py-2 text-[11px] font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white">
+                Beranda
+            </a>
+        </div>
+
+        <div class="relative w-full max-w-4xl overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/50 md:grid md:grid-cols-2 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/30">
             <div class="hidden flex-col justify-between bg-zinc-900 p-8 text-white md:flex">
                 <div>
                     <div class="flex items-center gap-3">
@@ -53,7 +71,7 @@
                             <x-icon name="wallet" class="h-5 w-5" />
                         </span>
                         <div>
-                            <p class="text-sm font-semibold">Saldo real-time</p>
+                            <p class="text-sm font-semibold">Saldo selalu terlihat</p>
                             <p class="text-[11px] text-zinc-400">Pantau arus kas kapan saja</p>
                         </div>
                     </div>
@@ -63,7 +81,7 @@
                         </span>
                         <div>
                             <p class="text-sm font-semibold">Laporan siap cetak</p>
-                            <p class="text-[11px] text-zinc-400">CSV &amp; PDF A4 untuk LPJ</p>
+                            <p class="text-[11px] text-zinc-400">Excel &amp; PDF A4 untuk LPJ</p>
                         </div>
                     </div>
                 </div>
@@ -74,20 +92,20 @@
                     <img src="{{ asset('icons/icon-mark.png') }}" alt="KasK1ta" class="h-9 w-9 rounded-xl">
                     <div>
                         <p class="font-display text-base font-bold tracking-tight">KasK1ta</p>
-                        <p class="text-[10px] text-zinc-500">Pencatatan Kas Sekolah</p>
+                        <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Pencatatan Kas Sekolah</p>
                     </div>
                 </div>
 
                 @if (session('success'))
-                    <div class="mb-4 flex items-start gap-3 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-800">
-                        <x-icon name="check" class="mt-0.5 h-5 w-5 shrink-0 text-teal-600" />
+                    <div class="mb-4 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-950/30 dark:text-emerald-200">
+                        <x-icon name="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-300" />
                         <p>{{ session('success') }}</p>
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-4 flex items-start gap-3 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-800">
-                        <x-icon name="exclamation-triangle" class="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
+                    <div class="mb-4 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-200">
+                        <x-icon name="exclamation-triangle" class="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-300" />
                         <p>{{ session('error') }}</p>
                     </div>
                 @endif

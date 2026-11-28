@@ -6,16 +6,31 @@ use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Category;
 use App\Models\Transaction;
+use App\Support\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TransactionController extends Controller
 {
     public function index(Request $request): View
+    {
+        return view('transactions.index', $this->buildIndexData($request));
+    }
+
+    public function results(Request $request): View
+    {
+        return view('transactions.results', $this->buildIndexData($request));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildIndexData(Request $request): array
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
@@ -27,9 +42,9 @@ class TransactionController extends Controller
 
         if (($filters['date_from'] ?? null) && ($filters['date_to'] ?? null)
             && $filters['date_from'] > $filters['date_to']) {
-            return back()
-                ->withErrors(['date_to' => 'Tanggal akhir harus setelah tanggal awal.'])
-                ->withInput();
+            throw ValidationException::withMessages([
+                'date_to' => 'Tanggal akhir harus setelah tanggal awal.',
+            ]);
         }
 
         $query = Transaction::query()
@@ -53,17 +68,18 @@ class TransactionController extends Controller
             ->orderByDesc('transaction_date')
             ->orderByDesc('id')
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->setPath(route('transactions.index'));
 
         $categories = Category::query()->orderBy('type')->orderBy('name')->get();
 
-        return view('transactions.index', compact(
+        return compact(
             'transactions',
             'categories',
             'filters',
             'totalIncome',
             'totalExpense',
-        ));
+        );
     }
 
     public function create(): View
@@ -85,6 +101,15 @@ class TransactionController extends Controller
         }
 
         $transaction = Transaction::create($data);
+
+        NotificationService::send(
+            $request->user(),
+            'Transaksi dicatat',
+            $transaction->description.' · '.format_rupiah_signed($transaction->amount, $transaction->type),
+            $transaction->type === 'income' ? 'arrow-down-left' : 'arrow-up-right',
+            $transaction->type === 'income' ? 'income' : 'expense',
+            route('transactions.show', $transaction),
+        );
 
         return redirect()
             ->route('transactions.show', $transaction)
@@ -121,18 +146,37 @@ class TransactionController extends Controller
 
         $transaction->update($data);
 
+        NotificationService::send(
+            $request->user(),
+            'Transaksi diperbarui',
+            $transaction->description.' · '.format_rupiah_signed($transaction->amount, $transaction->type),
+            'pencil',
+            'warning',
+            route('transactions.show', $transaction),
+        );
+
         return redirect()
             ->route('transactions.show', $transaction)
             ->with('success', 'Transaksi berhasil diperbarui.');
     }
 
-    public function destroy(Transaction $transaction): RedirectResponse
+    public function destroy(Request $request, Transaction $transaction): RedirectResponse
     {
         if ($transaction->receipt_path) {
             Storage::disk('public')->delete($transaction->receipt_path);
         }
 
+        $description = $transaction->description;
         $transaction->delete();
+
+        NotificationService::send(
+            $request->user(),
+            'Transaksi dihapus',
+            'Transaksi "'.$description.'" telah dihapus.',
+            'trash',
+            'expense',
+            route('transactions.index'),
+        );
 
         return redirect()
             ->route('transactions.index')

@@ -9,12 +9,16 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 ## Fitur
 
 - **Dashboard** — saldo kas, total pemasukan/pengeluaran, arus kas 6 bulan, dan transaksi terakhir.
-- **Transaksi** — catat pemasukan/pengeluaran, unggah foto nota (maks. 2 MB), cari & filter berdasarkan tipe, kategori, dan rentang tanggal.
+- **Transaksi** — catat pemasukan/pengeluaran, unggah foto nota (maks. 2 MB), cari & filter realtime berdasarkan tipe, kategori, dan rentang tanggal.
 - **Kategori** — kelola pos pemasukan dan pengeluaran beserta ikonnya.
-- **Manajemen pengguna** — khusus admin; tambah, ubah, dan hapus akun, atur role, serta reset password.
-- **Laporan** — rekap bulanan atau rentang tanggal kustom, saldo awal/akhir, export Excel rapi, CSV data mentah, dan halaman cetak A4 dengan kolom tanda tangan.
+- **Manajemen pengguna** — khusus Super Admin; tambah, ubah, dan hapus akun, atur role, serta reset password.
+- **Laporan** — rekap bulanan atau rentang tanggal kustom, saldo awal/akhir, export Excel rapi, dan halaman cetak A4 dengan kolom tanda tangan. Filter laporan juga realtime.
+- **Landing page publik** — halaman depan yang bisa dilihat tanpa login, dengan CTA berubah menjadi Dashboard setelah masuk.
+- **Help Center** — pusat bantuan publik dan CMS artikel khusus Super Admin.
+- **Notifikasi** — lonceng notifikasi berbasis database untuk aksi penting, dengan polling ringan 60 detik.
+- **Dark mode** — mode gelap/terang tersimpan di perangkat; halaman cetak dan export tetap terang.
 - **PWA** — dapat dipasang ke home screen, service worker dengan fallback offline.
-- **Role-based access** — `admin` (akses penuh + manajemen pengguna) dan `bendahara` (transaksi, kategori, laporan).
+- **Role-based access** — `super_admin` (semua akses + pengguna/landing/help), `admin` (operasional penuh), dan `bendahara` (transaksi, kategori, laporan).
 
 ## Teknologi
 
@@ -77,7 +81,7 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
    php artisan migrate --seed
    ```
 
-   Seeder membuat 2 akun demo, 10 kategori, dan 25 transaksi contoh (bulan ini + 5 bulan sebelumnya).
+   Seeder membuat 3 akun demo, 10 kategori, 25 transaksi contoh (bulan ini + 5 bulan sebelumnya), dan artikel Help Center awal.
 
 5. **Build asset frontend**
 
@@ -99,6 +103,7 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 
 | Role | Email | Password |
 |---|---|---|
+| Super Admin | `superadmin@sekolah.sch.id` | `password` |
 | Admin / Kepala TU | `admin@sekolah.sch.id` | `password` |
 | Bendahara | `bendahara@sekolah.sch.id` | `password` |
 
@@ -113,9 +118,10 @@ Dibangun dengan **Laravel 12**, **Blade**, **Tailwind CSS v4**, **Alpine.js**, d
 
 ## Laporan & Export
 
-- **Excel (.xlsx)** adalah export utama: judul dan periode, header tabel berwarna, border, freeze pane, auto-filter, lebar kolom, tanggal `dd/mm/yyyy`, serta nominal format `Rp 1.500.000` yang tetap numerik. Ringkasan saldo awal, pemasukan, pengeluaran, dan saldo akhir berada di bawah tabel.
-- **CSV** tetap tersedia sebagai data mentah: UTF-8 BOM, delimiter `;`, dan nominal angka tanpa format agar mudah diolah lagi. Untuk tampilan rapi, gunakan export Excel.
-- **Cetak** membuka halaman A4 terpisah; gunakan tombol *Cetak / Simpan PDF* di browser.
+- **Excel (.xlsx)** adalah export utama: judul dan periode, header tabel berwarna, border, freeze pane, auto-filter, lebar kolom, tanggal `dd/mm/yyyy`, serta nominal format `Rp 1.500.000` yang tetap numerik. Kolom: No, Tanggal, Keterangan, Kategori, Pencatat, Masuk, Keluar, Saldo; tanpa Catatan. Ringkasan saldo awal, pemasukan, pengeluaran, dan saldo akhir berada di bawah tabel.
+- **CSV** tetap tersedia di route `/reports/export-csv` untuk kompatibilitas data mentah, tetapi tombolnya tidak ditampilkan di UI. Format: UTF-8 BOM, delimiter `;`, nominal angka tanpa format, tanpa Catatan.
+- **Cetak** membuka halaman A4 terpisah; gunakan tombol *Cetak / Simpan PDF* di browser. Print selalu terang dan tanpa Catatan.
+- **Warna** pemasukan hijau dan pengeluaran merah, baik di layar, Excel, maupun print.
 - Bukti nota disimpan di `storage/app/public/receipts` dan diakses melalui route terautentikasi `/transactions/{id}/receipt` — tidak memerlukan `php artisan storage:link`.
 
 ## Testing
@@ -131,19 +137,24 @@ Test berjalan dengan SQLite in-memory (lihat `phpunit.xml`) sehingga tidak mengu
 ```text
 app/
 ├── Http/
-│   ├── Controllers/        # Dashboard, transaksi, kategori, pengguna, laporan
-│   ├── Middleware/         # EnsureUserIsAdmin
+│   ├── Controllers/        # Dashboard, transaksi, kategori, pengguna, laporan, landing, help, notifikasi
+│   ├── Controllers/SuperAdmin/ # CMS landing & Help Center
+│   ├── Middleware/         # EnsureUserIsAdmin, EnsureUserIsSuperAdmin
 │   └── Requests/           # Validasi transaksi
-├── Models/                 # User, Category, Transaction
-└── Support/helpers.php     # format_rupiah(), format_rupiah_signed()
+├── Models/                 # User, Category, Transaction, SiteSetting, HelpArticle
+├── Notifications/          # ActivityNotification
+└── Support/                # helpers.php, NotificationService
 
 resources/views/
-├── layouts/                # Layout aplikasi & login
-├── transactions/           # Index, form, detail
+├── layouts/                # Layout aplikasi, guest, publik
+├── transactions/           # Index, form, detail, partial realtime
 ├── categories/             # Kelola kategori
-├── users/                  # Manajemen pengguna (admin)
-├── reports/                # Laporan & halaman cetak
-└── components/icon.blade.php
+├── users/                  # Manajemen pengguna (Super Admin)
+├── reports/                # Laporan, partial realtime, halaman cetak
+├── landing.blade.php       # Landing page publik
+├── help/                   # Help Center publik
+├── super-admin/            # CMS landing & Help Center
+└── components/             # Icon, UI select/date/stat-card/notification/theme
 
 public/
 ├── manifest.json

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,8 +15,8 @@ class UserController extends Controller
     {
         $users = User::query()
             ->withCount('transactions')
-            ->orderBy('role')
-            ->orderBy('name')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->get();
 
         return view('users.index', compact('users'));
@@ -26,7 +27,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', Rule::in(['admin', 'bendahara'])],
+            'role' => ['required', Rule::in(User::ROLES)],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'name.required' => 'Nama pengguna wajib diisi.',
@@ -39,7 +40,17 @@ class UserController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        User::create($data);
+        $user = User::create($data);
+
+        NotificationService::send(
+            $request->user(),
+            'Akun pengguna ditambahkan',
+            'Akun "'.$user->name.'" dengan role '.$user->role_label.' berhasil dibuat.',
+            'user-plus',
+            'warning',
+            route('users.index'),
+            NotificationService::superAdmins(),
+        );
 
         return back()->with('success', 'Akun pengguna berhasil ditambahkan.');
     }
@@ -55,7 +66,7 @@ class UserController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'role' => ['required', Rule::in(['admin', 'bendahara'])],
+            'role' => ['required', Rule::in(User::ROLES)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ], [
             'name.required' => 'Nama pengguna wajib diisi.',
@@ -67,13 +78,15 @@ class UserController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        if ($user->id === $request->user()->id && $data['role'] !== 'admin') {
-            return back()->with('error', 'Anda tidak dapat mengubah role akun sendiri.');
+        if ($user->role === 'super_admin'
+            && $data['role'] !== 'super_admin'
+            && User::query()->where('role', 'super_admin')->count() <= 1) {
+            return back()->with('error', 'Minimal harus ada satu akun Super Admin yang aktif.');
         }
 
         if ($user->role === 'admin'
-            && $data['role'] !== 'admin'
-            && User::query()->where('role', 'admin')->count() <= 1) {
+            && ! in_array($data['role'], ['admin', 'super_admin'], true)
+            && User::query()->whereIn('role', ['admin', 'super_admin'])->count() <= 1) {
             return back()->with('error', 'Minimal harus ada satu akun admin yang aktif.');
         }
 
@@ -81,7 +94,25 @@ class UserController extends Controller
             unset($data['password']);
         }
 
+        $selfRoleChanged = $user->id === $request->user()->id && $data['role'] !== $user->role;
+
         $user->update($data);
+
+        NotificationService::send(
+            $request->user(),
+            'Akun pengguna diperbarui',
+            'Akun "'.$user->name.'" berhasil diperbarui.',
+            'users',
+            'warning',
+            $selfRoleChanged ? route('dashboard') : route('users.index'),
+            NotificationService::superAdmins(),
+        );
+
+        if ($selfRoleChanged && ! $request->user()->fresh()->isSuperAdmin()) {
+            return redirect()
+                ->route('dashboard')
+                ->with('success', 'Role akun Anda berhasil diperbarui.');
+        }
 
         return back()->with('success', 'Akun pengguna berhasil diperbarui.');
     }
@@ -92,11 +123,27 @@ class UserController extends Controller
             return back()->with('error', 'Anda tidak dapat menghapus akun sendiri.');
         }
 
-        if ($user->role === 'admin' && User::query()->where('role', 'admin')->count() <= 1) {
+        if ($user->role === 'super_admin' && User::query()->where('role', 'super_admin')->count() <= 1) {
+            return back()->with('error', 'Minimal harus ada satu akun Super Admin yang aktif.');
+        }
+
+        if ($user->role === 'admin'
+            && User::query()->whereIn('role', ['admin', 'super_admin'])->count() <= 1) {
             return back()->with('error', 'Minimal harus ada satu akun admin yang aktif.');
         }
 
+        $name = $user->name;
         $user->delete();
+
+        NotificationService::send(
+            $request->user(),
+            'Akun pengguna dihapus',
+            'Akun "'.$name.'" telah dihapus.',
+            'trash',
+            'expense',
+            route('users.index'),
+            NotificationService::superAdmins(),
+        );
 
         return back()->with('success', 'Akun pengguna berhasil dihapus.');
     }

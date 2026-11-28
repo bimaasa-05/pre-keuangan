@@ -28,7 +28,7 @@ class ReportTest extends TestCase
             ->assertSee('Laporan Kas')
             ->assertSee('Iuran Kas')
             ->assertSee('Export Excel')
-            ->assertSee('CSV (data mentah)');
+            ->assertDontSee('CSV (data mentah)');
     }
 
     public function test_report_csv_can_be_downloaded(): void
@@ -46,8 +46,10 @@ class ReportTest extends TestCase
         $content = $response->streamedContent();
 
         $this->assertStringContainsString('Keterangan', $content);
+        $this->assertStringContainsString('Pencatat', $content);
         $this->assertStringContainsString('Iuran Kas', $content);
         $this->assertStringContainsString('Total Pemasukan', $content);
+        $this->assertStringNotContainsString('Catatan', $content);
     }
 
     public function test_report_excel_can_be_downloaded_with_formatted_table(): void
@@ -82,14 +84,19 @@ class ReportTest extends TestCase
 
             $this->assertSame('LAPORAN KAS SEKOLAH', $sheet->getCell('A1')->getValue());
             $this->assertSame('No', $sheet->getCell('A5')->getValue());
+            $this->assertSame('Pencatat', $sheet->getCell('E5')->getValue());
+            $this->assertSame('Masuk', $sheet->getCell('F5')->getValue());
+            $this->assertSame('Keluar', $sheet->getCell('G5')->getValue());
+            $this->assertSame('Saldo', $sheet->getCell('H5')->getValue());
             $this->assertSame('Iuran Kas Kelas X-1', $sheet->getCell('C6')->getValue());
-            $this->assertSame(1000000, (int) $sheet->getCell('E6')->getValue());
+            $this->assertSame('Bendahara Sekolah', $sheet->getCell('E6')->getValue());
+            $this->assertSame(1000000, (int) $sheet->getCell('F6')->getValue());
             $this->assertSame(NumberFormat::FORMAT_DATE_DDMMYYYY, $sheet->getStyle('B6')->getNumberFormat()->getFormatCode());
-            $this->assertStringContainsString('Rp', $sheet->getStyle('E6')->getNumberFormat()->getFormatCode());
+            $this->assertStringContainsString('Rp', $sheet->getStyle('F6')->getNumberFormat()->getFormatCode());
             $this->assertSame('A6', $sheet->getFreezePane());
             $this->assertSame('Saldo Awal', $sheet->getCell('C8')->getValue());
             $this->assertSame('Saldo Akhir', $sheet->getCell('C11')->getValue());
-            $this->assertSame(1000000, (int) $sheet->getCell('G11')->getValue());
+            $this->assertSame(1000000, (int) $sheet->getCell('H11')->getValue());
 
             $spreadsheet->disconnectWorksheets();
         } finally {

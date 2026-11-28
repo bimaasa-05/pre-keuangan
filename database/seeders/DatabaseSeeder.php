@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\HelpArticle;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -11,6 +12,16 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        User::updateOrCreate(
+            ['email' => 'superadmin@sekolah.sch.id'],
+            [
+                'name' => 'Super Admin',
+                'role' => 'super_admin',
+                'password' => 'password',
+                'email_verified_at' => now(),
+            ]
+        );
+
         $admin = User::updateOrCreate(
             ['email' => 'admin@sekolah.sch.id'],
             [
@@ -49,6 +60,40 @@ class DatabaseSeeder extends Seeder
                 ['name' => $category['name']],
                 ['type' => $category['type'], 'icon' => $category['icon']]
             );
+        }
+
+        $helpArticles = [
+            [
+                'title' => 'Cara mencatat transaksi baru',
+                'slug' => 'cara-mencatat-transaksi-baru',
+                'category' => 'Transaksi',
+                'summary' => 'Langkah singkat mencatat pemasukan atau pengeluaran kas sekolah.',
+                'content' => "1. Buka menu Transaksi, lalu pilih Catat Transaksi.\n2. Pilih tipe Pemasukan atau Pengeluaran.\n3. Isi nominal, kategori, tanggal, dan keterangan.\n4. Unggah foto nota bila ada.\n5. Klik Simpan Transaksi.",
+                'is_published' => true,
+                'sort_order' => 1,
+            ],
+            [
+                'title' => 'Membuat dan mengekspor laporan',
+                'slug' => 'membuat-dan-mengekspor-laporan',
+                'category' => 'Laporan',
+                'summary' => 'Panduan memilih periode, mengekspor Excel, dan mencetak laporan A4.',
+                'content' => "Buka menu Laporan, pilih mode Bulanan atau Rentang Tanggal, lalu klik Tampilkan Laporan.\n\nGunakan tombol Export Excel untuk mengunduh rekap, atau Cetak / PDF untuk membuka halaman cetak A4. Laporan selalu disusun kronologis dari transaksi paling lama ke paling baru.",
+                'is_published' => true,
+                'sort_order' => 2,
+            ],
+            [
+                'title' => 'Mengelola akun pengguna',
+                'slug' => 'mengelola-akun-pengguna',
+                'category' => 'Akun',
+                'summary' => 'Super Admin dapat membuat akun admin dan bendahara.',
+                'content' => "Pendaftaran mandiri tidak tersedia. Akun dibuat oleh Super Admin melalui menu Pengguna.\n\nSuper Admin dapat menambah, mengubah, dan menghapus akun. Minimal satu akun Super Admin harus tetap aktif. Akun yang sudah memiliki transaksi sebaiknya tidak dihapus sebelum data diekspor.",
+                'is_published' => true,
+                'sort_order' => 3,
+            ],
+        ];
+
+        foreach ($helpArticles as $article) {
+            HelpArticle::updateOrCreate(['slug' => $article['slug']], $article);
         }
 
         if (Transaction::query()->exists()) {

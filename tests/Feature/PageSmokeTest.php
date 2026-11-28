@@ -16,7 +16,7 @@ class PageSmokeTest extends TestCase
 
     public function test_authenticated_pages_render(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['role' => 'super_admin']);
         $category = Category::create([
             'name' => 'Iuran Kas Siswa',
             'type' => 'income',

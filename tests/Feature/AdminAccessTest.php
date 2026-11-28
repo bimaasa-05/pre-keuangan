@@ -17,18 +17,25 @@ class AdminAccessTest extends TestCase
         $this->actingAs($bendahara)->get('/users')->assertForbidden();
     }
 
-    public function test_admin_can_access_user_management(): void
+    public function test_admin_cannot_access_user_management(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->get('/users')->assertOk();
+        $this->actingAs($admin)->get('/users')->assertForbidden();
     }
 
-    public function test_admin_can_create_user(): void
+    public function test_super_admin_can_access_user_management(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
 
-        $this->actingAs($admin)->post('/users', [
+        $this->actingAs($superAdmin)->get('/users')->assertOk();
+    }
+
+    public function test_super_admin_can_create_user(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($superAdmin)->post('/users', [
             'name' => 'Bendahara Baru',
             'email' => 'bendahara.baru@example.com',
             'role' => 'bendahara',
@@ -43,14 +50,55 @@ class AdminAccessTest extends TestCase
         ]);
     }
 
-    public function test_admin_cannot_delete_own_account(): void
+    public function test_super_admin_cannot_delete_own_account(): void
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
 
-        $this->actingAs($admin)
-            ->delete('/users/'.$admin->id)
+        $this->actingAs($superAdmin)
+            ->delete('/users/'.$superAdmin->id)
             ->assertSessionHas('error');
 
-        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+        $this->assertDatabaseHas('users', ['id' => $superAdmin->id]);
+    }
+
+    public function test_super_admin_can_demote_another_super_admin(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        $other = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($other)->put('/users/'.$superAdmin->id, [
+            'name' => $superAdmin->name,
+            'email' => $superAdmin->email,
+            'role' => 'admin',
+        ])->assertSessionHas('success');
+
+        $this->assertDatabaseHas('users', ['id' => $superAdmin->id, 'role' => 'admin']);
+    }
+
+    public function test_super_admin_cannot_change_own_role(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($superAdmin)->put('/users/'.$superAdmin->id, [
+            'name' => $superAdmin->name,
+            'email' => $superAdmin->email,
+            'role' => 'admin',
+        ])->assertSessionHas('error');
+
+        $this->assertDatabaseHas('users', ['id' => $superAdmin->id, 'role' => 'super_admin']);
+    }
+
+    public function test_super_admin_can_demote_self_when_another_super_admin_exists(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'super_admin']);
+        User::factory()->create(['role' => 'super_admin']);
+
+        $this->actingAs($superAdmin)->put('/users/'.$superAdmin->id, [
+            'name' => $superAdmin->name,
+            'email' => $superAdmin->email,
+            'role' => 'admin',
+        ])->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseHas('users', ['id' => $superAdmin->id, 'role' => 'admin']);
     }
 }

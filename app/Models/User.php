@@ -14,6 +14,14 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLES = ['super_admin', 'admin', 'bendahara'];
+
+    public const ROLE_LABELS = [
+        'super_admin' => 'Super Admin',
+        'admin' => 'Admin / Kepala TU',
+        'bendahara' => 'Bendahara',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -54,13 +62,23 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin';
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return in_array($this->role, ['admin', 'super_admin'], true);
+    }
+
+    public function canManageUsers(): bool
+    {
+        return $this->isSuperAdmin();
     }
 
     public function getRoleLabelAttribute(): string
     {
-        return $this->role === 'admin' ? 'Admin / Kepala TU' : 'Bendahara';
+        return self::ROLE_LABELS[$this->role] ?? ucfirst(str_replace('_', ' ', (string) $this->role));
     }
 }

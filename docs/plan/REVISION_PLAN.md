@@ -92,8 +92,10 @@ Rencana ini memakai default berikut. Kalau ada yang tidak sesuai, koreksi sebelu
 - [ ] QA manual matriks browser/perangkat (desktop, tablet, mobile, dark/light).
 - [ ] Audit akhir teks bahasa Indonesia dan konsistensi istilah.
 - [ ] Uji PWA install/offline dan service worker pada build produksi.
+- [x] Verifikasi aset PWA (`manifest.json`, `sw.js`, `offline.html`, ikon) merespons 200.
 - [ ] Ganti password akun Super Admin demo sebelum rilis.
-- [ ] Commit akhir dan push.
+- [x] Commit akhir dan push (`5ad1b93`).
+- [x] Smoke test HTTP halaman utama, CMS, Help Center, dan endpoint realtime.
 
 > Catatan working tree: migration `2026_11_26_000001_add_role_to_users_table.php` sengaja diubah dari enum ke string, lalu dilengkapi migration baru `2026_11_27_000002_change_role_to_string_on_users_table.php` untuk MySQL yang sudah berjalan. Perubahan ini bagian dari Fase 3, bukan whitespace yang bisa dibuang.
 
@@ -718,7 +720,7 @@ Urutan fase mengikuti keputusan: **UI → dark mode + notifikasi → Super Admin
 | Fase 2 — Dark mode + notifikasi | ✅ Selesai | tema tersimpan, lonceng database, polling 60 detik |
 | Fase 3 — Super Admin + landing/help | ✅ Selesai | role, CMS landing, Help Center publik/CMS |
 | Fase 4 — Realtime filter | ✅ Selesai | partial transaksi/laporan, debounce, abort, pagination |
-| Fase 5 — Hardening/rilis | 🟡 Berjalan | QA manual perangkat, audit teks, uji PWA, ganti password demo, commit/push |
+| Fase 5 — Hardening/rilis | 🟡 Berjalan | QA manual perangkat, audit teks, uji PWA, ganti password demo; commit `5ad1b93` sudah di-push |
 
 Legenda: ✅ selesai · 🟡 berjalan · ⬜ belum · ❌ dibatalkan · ⚠️ tertahan.
 
@@ -813,9 +815,9 @@ php artisan test
    - QA manual matriks browser/perangkat (desktop, tablet, mobile, dark/light);
    - audit akhir teks dan konsistensi istilah;
    - uji PWA install/offline pada build produksi;
-   - ganti password akun Super Admin demo;
-   - commit akhir dan push.
-3. Setelah setiap perubahan lanjutan:
+   - ganti password akun Super Admin demo.
+3. Commit `5ad1b93` sudah di-push ke `origin/main`.
+4. Setelah setiap perubahan lanjutan:
    - update status tracker;
    - jalankan test/build/Pint;
    - commit.
